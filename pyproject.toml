@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "mcp-service-testing"
+version = "0.1.0"
+description = "MCP test server (current time) and HTTP/SSE client utilities"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "mcp>=1.26",
+  "python-dotenv>=1.0",
+]
+
+[project.scripts]
+mcp-current-time-server = "mcp_service_testing.server:main"
+mcp-test-client = "mcp_service_testing.client:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

@@ -1,0 +1,75 @@
+services:
+  current-time-http:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command:
+      [
+        "python",
+        "-m",
+        "mcp_service_testing.server",
+        "--transport",
+        "streamable-http",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8000",
+      ]
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import socket; s=socket.create_connection(('127.0.0.1',8000),2); s.close()",
+        ]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  current-time-sse:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command:
+      [
+        "python",
+        "-m",
+        "mcp_service_testing.server",
+        "--transport",
+        "sse",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8001",
+      ]
+    ports:
+      - "8001:8001"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import socket; s=socket.create_connection(('127.0.0.1',8001),2); s.close()",
+        ]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  mcp-test-client:
+    profiles: ["client"]
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: ["python", "-m", "mcp_service_testing.client"]
+    environment:
+      MCP_TRANSPORT: http
+      MCP_SERVER_URL: http://current-time-http:8000/mcp
+    depends_on:
+      current-time-http:
+        condition: service_healthy
